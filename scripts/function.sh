@@ -56,7 +56,7 @@ function merge_commits(){
 # 拉取 lisaac/luci-app-dockerman 存储库中的特定提交中的指定包到 my_packages 目录
 # merge_commits master https://github.com/kenzok8/openwrt-packages 915f448b80ee1adb928a5cfd58c33c678abacb5c package/openwrt-packages/test luci-app-adguardhome
 # rm -rf package/network/utils/ipset
-# merge_commits master https://github.com/coolsnowwolf/lede dcb074e9d3b25ddd80567e1f1b8190d220b60396 package/network/utils package/network/utils/ipset
+# merge_commits main https://github.com/openwrt/openwrt 9f6a28b91e30de9c6875afbe1493934218dbfb49 package/network/utils package/network/utils/ipset
 
 drop_package(){
 	find package/ -follow -name $1 -not -path "package/custom/*" | xargs -rt rm -rf
