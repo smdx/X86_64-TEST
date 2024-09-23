@@ -81,8 +81,7 @@ echo "Golang 插件切换完成"
 
 # IPSet(Lean源码已跟进)
 #rm -rf package/network/utils/ipset
-#wget -P package/network/utils/ipset/ https://raw.githubusercontent.com/openwrt/openwrt/47370eb9ba2cf7021ac2bb208136c52ee85b6ba1/package/network/utils/ipset/Makefile
-#wget -P package/network/utils/ipset/patches/ https://raw.githubusercontent.com/openwrt/openwrt/47370eb9ba2cf7021ac2bb208136c52ee85b6ba1/package/network/utils/ipset/patches/0001-include-libgen.h-for-basename.patch
+#merge_commits main https://github.com/openwrt/openwrt 9f6a28b91e30de9c6875afbe1493934218dbfb49 package/network/utils package/network/utils/ipset
 #echo "IPSet 插件切换完成"
 
 #改用MosDNS源码：

@@ -28,6 +28,36 @@ merge_folder() {
 	cd "$rootdir"
 }
 
+function merge_commits(){
+    # 参数1是分支名，参数2是库地址，参数3是提交的哈希值，参数4是目标目录路径。后续参数为要下载的包名或路径。
+    branch="$1"
+    curl="$2"
+    commit="$3"
+    targetdir="$4"
+    
+    [ -d "$targetdir" ] || mkdir -p "$targetdir"
+    
+    for package in "${@:5}"; do
+        url="$curl/archive/$commit.tar.gz"
+        tempdir=$(mktemp -d)
+        
+        curl -L "$url" | tar -xz -C "$tempdir" --strip-components=1
+        
+        if [ -d "$tempdir/$package" ]; then
+            cp -r "$tempdir/$package" "$targetdir/"
+        else
+            echo "Package $package not found in the repository."
+        fi
+        
+        rm -rf "$tempdir"
+    done
+}
+
+# 拉取 lisaac/luci-app-dockerman 存储库中的特定提交中的指定包到 my_packages 目录
+# merge_commits master https://github.com/kenzok8/openwrt-packages 915f448b80ee1adb928a5cfd58c33c678abacb5c package/openwrt-packages/test luci-app-adguardhome
+# rm -rf package/network/utils/ipset
+# merge_commits master https://github.com/coolsnowwolf/lede dcb074e9d3b25ddd80567e1f1b8190d220b60396 package/network/utils package/network/utils/ipset
+
 drop_package(){
 	find package/ -follow -name $1 -not -path "package/custom/*" | xargs -rt rm -rf
 }
