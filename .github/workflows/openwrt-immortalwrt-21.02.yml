@@ -121,6 +121,7 @@ jobs:
         chmod -R 755 files
         chmod 600 files/etc/config/ttyd
         patch -p1 < "${GITHUB_WORKSPACE}/patches/sysctl.patch"
+        $GITHUB_WORKSPACE/scripts/PKG_Version_Get.sh
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
     - name: SSH connection to Actions
@@ -204,10 +205,12 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-        echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
+        echo "release_tag=ImmortalWrt-$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
         touch release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
+        echo "ImmortalWrt-x86" >> release.txt
+        $GITHUB_WORKSPACE/scripts/PKG_Version_Output.sh
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware to release
