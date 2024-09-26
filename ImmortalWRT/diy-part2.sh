@@ -15,6 +15,12 @@ echo "========================="
 chmod +x ${GITHUB_WORKSPACE}/scripts/function.sh
 source ${GITHUB_WORKSPACE}/scripts/function.sh
 
+# 参数1是分支名,参数2是库地址,参数3是所有文件下载到指定路径,参数4是指定要下载的包文件夹。
+# 同一个仓库下载多个文件夹直接在后面跟文件名或路径，空格分开。
+# 示例:
+# merge_folder master https://github.com/WYC-2020/openwrt-packages package/openwrt-packages luci-app-eqos luci-app-openclash luci-app-ddnsto ddnsto 
+# merge_folder master https://github.com/lisaac/luci-app-dockerman package/lean applications/luci-app-dockerman
+
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
@@ -41,16 +47,6 @@ sed -i '/exit 0/i ethtool -s eth0 speed 2500 duplex full\nethtool -s eth1 speed 
 #sed -i '/customized in this file/a net.core.wmem_default=16777216' package/base-files/files/etc/sysctl.conf
 #sed -i '/customized in this file/a net.core.rmem_max=16777216' package/base-files/files/etc/sysctl.conf
 #sed -i '/customized in this file/a net.core.wmem_max=16777216' package/base-files/files/etc/sysctl.conf
-
-# Git稀疏克隆，只克隆指定目录到本地
-#function git_sparse_clone() {
-#  branch="$1" repourl="$2" && shift 2
-#  git clone --depth=1 -b $branch --single-branch --filter=blob:none --sparse $repourl
-#  repodir=$(echo $repourl | awk -F '/' '{print $(NF)}')
-#  cd $repodir && git sparse-checkout set $@
-#  mv -f $@ ../package
-#  cd .. && rm -rf $repodir
-#}
 
 # MSD组播转换luci
 rm -rf feeds/luci/applications/luci-app-msd_lite
@@ -97,6 +93,11 @@ echo "MosDNS 插件切换完成"
 rm -rf feeds/packages/net/miniupnpd
 merge_folder master https://github.com/coolsnowwolf/packages feeds/packages/net net/miniupnpd
 echo "Miniupnpd 插件切换完成"
+
+#Dnsmasq 版本替换
+rm -rf package/network/services/dnsmasq
+merge_folder master https://github.com/coolsnowwolf/lede package/network/services package/network/services/dnsmasq
+echo "Dnsmasq 插件切换完成"
 
 # OpenSSL
 #pushd package/libs/openssl
