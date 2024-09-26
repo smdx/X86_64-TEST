@@ -1,9 +1,7 @@
-2023-4-10：
-forked from yaya131/X86_64-TEST
-
 Lean-x86
 Lienol-x86
-immortalwrt-21.02
+immortalwrt-X86 21.02
 
-编译rootfs版本用于PVE LXC OpenWRT
-密码为空
+管理地址：10.0.0.1
+默认密码：空
+插件清单：AdGuard Home、MosDNS、SmartDNS、Passwall、Passwall2、Store、Wol、MultiSD_Lite、udpxy、UPnP
