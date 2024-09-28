@@ -27,4 +27,5 @@ elif [[ $REPO_URL == *"immortalwrt"* ]]; then
     echo "SmartDNS Version: $smartdns" >> release.txt
     echo "Passwall Version: $passwall_version" >> release.txt
     echo "Passwall2 Version: $passwall2_version" >> release.txt
+    echo "Store Version: $store" >> release.txt
 fi
