@@ -1,7 +1,7 @@
 #!/bin/bash
 # Get Package Versions
 adguardhome_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' $(find feeds/ -name Makefile | grep adguardhome | head -n 1))
-mosdns_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/small/mosdns/Makefile)
+mosdns_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' package/mosdns/mosdns/Makefile)
 smartdns_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/kenzo/luci-app-smartdns/Makefile)
 passwall_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/small/luci-app-passwall/Makefile)
 passwall2_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/small/luci-app-passwall2/Makefile)
