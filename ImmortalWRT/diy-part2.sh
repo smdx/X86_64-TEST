@@ -90,7 +90,7 @@ echo "AdguardHome 插件切换完成"
 #改用MosDNS源码：
 rm -rf feeds/small/luci-app-mosdns
 rm -rf feeds/small/v2ray-geodata
-git clone https://github.com/sbwml/luci-app-mosdns -b v5-lua package/mosdns
+git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 echo "MosDNS 插件切换完成"
 
