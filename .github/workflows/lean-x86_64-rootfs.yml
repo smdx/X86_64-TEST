@@ -135,8 +135,8 @@ jobs:
         chmod 644 files/www/luci-static/wrtbwmon/wrtbwmon.js
         patch -p1 < "${GITHUB_WORKSPACE}/patches/sysctl.patch"
         $GITHUB_WORKSPACE/scripts/conntrack.sh
-        $GITHUB_WORKSPACE/scripts/PKG_Version_Get.sh
         $GITHUB_WORKSPACE/$DIY_P2_SH
+        $GITHUB_WORKSPACE/scripts/PKG_Version_Get.sh
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
