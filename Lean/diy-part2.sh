@@ -15,14 +15,14 @@ echo "========================="
 chmod +x ${GITHUB_WORKSPACE}/scripts/function.sh
 source ${GITHUB_WORKSPACE}/scripts/function.sh
 
-# merge_folder 拉取指定文件夹操作
+# merge_folder 拉取指定文件夹操作 示例：
 # 参数1是分支名，参数2是库地址，参数3是所有文件下载到指定路径，参数4是指定要下载的包文件夹。
 # 同一个仓库下载多个文件夹直接在后面跟文件名或路径，空格分开。
 # 示例:
 # merge_folder master https://github.com/WYC-2020/openwrt-packages package/openwrt-packages luci-app-eqos luci-app-openclash luci-app-ddnsto ddnsto 
 # merge_folder master https://github.com/lisaac/luci-app-dockerman package/lean applications/luci-app-dockerman
 
-# merge_commits 拉取指定commits操作
+# merge_commits 拉取指定commits操作 示例：
 #参数1是分支名，参数2是库地址，参数3是指定commits，参数4是下载到指定路径，参数5是目标包文件夹。
 #merge_commits master https://github.com/kenzok8/openwrt-packages 114ee35443ccb8e0fbb92027134c3887feec9b37 feeds/kenzo adguardhome
 
