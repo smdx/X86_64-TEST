@@ -54,7 +54,9 @@ while IFS= read -r line; do
 done < openwrt/.config
 
 # 插入插件清单到 release.txt
+IFS='、'  # 设置分隔符
 echo "插件清单：${selected_plugins[*]}" >> release.txt
+unset IFS  # 恢复默认分隔符
 echo "---------------------------------------------" >> release.txt
 
 # 主要插件输出版本信息
