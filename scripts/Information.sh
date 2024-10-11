@@ -19,10 +19,10 @@ fi
 # 读取LINUX_KERNEL版本信息
 if [[ $REPO_URL == *"lede"* ]]; then
     # 如果地址包含"lede"，执行以下操作
-    grep "LINUX_KERNEL_HASH-" include/kernel-6.1 | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
+    grep "LINUX_KERNEL_HASH-" openwrt/include/kernel-6.1 | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
 elif [[ $REPO_URL == *"immortalwrt"* ]]; then
     # 如果地址包含"immortalwrt"，执行以下操作
-    grep "LINUX_KERNEL_HASH-" include/kernel-5.* | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
+    grep "LINUX_KERNEL_HASH-" openwrt/include/kernel-5.* | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
 fi
 
 # 路由登录信息
@@ -72,7 +72,7 @@ echo "---------------------------------------------" >> release.txt
 for plugin in "${selected_plugins[@]}"; do
     case $plugin in
         "AdGuard_Home")
-            echo "Adguardhome Version: $adguardhome" >> release.txt
+            echo "AdguardHome Version: $adguardhome" >> release.txt
             ;;
         "MosDNS")
             echo "MosDNS Version: $mosdns" >> release.txt
