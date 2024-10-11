@@ -16,6 +16,15 @@ if [ -n "$REPO_BRANCH" ]; then
     echo "Branch: $capitalized_branch" >> release.txt
 fi
 
+# 读取LINUX_KERNEL版本信息
+if [[ $REPO_URL == *"lede"* ]]; then
+    # 如果地址包含"lede"，执行以下操作
+    grep "LINUX_KERNEL_HASH-" include/kernel-6.1 | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
+elif [[ $REPO_URL == *"immortalwrt"* ]]; then
+    # 如果地址包含"immortalwrt"，执行以下操作
+    grep "LINUX_KERNEL_HASH-" include/kernel-5.* | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
+fi
+
 # 路由登录信息
 echo "管理地址：10.0.0.1" >> release.txt
 echo "默认密码：空" >> release.txt
@@ -23,7 +32,7 @@ echo "默认密码：空" >> release.txt
 # 定义需要检查的插件列表
 declare -A plugins
 plugins=(
-    ["AdGuard Home"]="luci-app-adguardhome"
+    ["AdGuard_Home"]="luci-app-adguardhome"
     ["MosDNS"]="luci-app-mosdns"
     ["SmartDNS"]="luci-app-smartdns"
     ["Passwall"]="luci-app-passwall"
@@ -62,7 +71,7 @@ echo "---------------------------------------------" >> release.txt
 # 主要插件输出版本信息
 for plugin in "${selected_plugins[@]}"; do
     case $plugin in
-        "AdGuard Home")
+        "AdGuard_Home")
             echo "Adguardhome Version: $adguardhome" >> release.txt
             ;;
         "MosDNS")
