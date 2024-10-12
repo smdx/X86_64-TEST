@@ -95,14 +95,14 @@ git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 echo "MosDNS 插件切换完成"
 
 #Miniupnpd 替换 (ImmortalWRT源码用)
-rm -rf feeds/packages/net/miniupnpd
-merge_folder master https://github.com/coolsnowwolf/packages feeds/packages/net net/miniupnpd
-echo "Miniupnpd 插件切换完成"
+#rm -rf feeds/packages/net/miniupnpd
+#merge_folder master https://github.com/coolsnowwolf/packages feeds/packages/net net/miniupnpd
+#echo "Miniupnpd 插件切换完成"
 
 #Dnsmasq 版本替换
-rm -rf package/network/services/dnsmasq
-merge_folder master https://github.com/coolsnowwolf/lede package/network/services package/network/services/dnsmasq
-echo "Dnsmasq 插件切换完成"
+#rm -rf package/network/services/dnsmasq
+#merge_folder master https://github.com/coolsnowwolf/lede package/network/services package/network/services/dnsmasq
+#echo "Dnsmasq 插件切换完成"
 
 # OpenSSL
 #pushd package/libs/openssl
