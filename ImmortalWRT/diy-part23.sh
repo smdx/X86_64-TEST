@@ -75,12 +75,31 @@ echo "开始执行切换插件到指定版本"
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 echo "Golang 插件切换完成"
 
+# ------------------PassWall 科学上网--------------------------
+# 移除 openwrt feeds 自带的核心库
+rm -rf feeds/packages/net/{xray-core,v2ray-core,v2ray-geodata,sing-box,pdnsd-alt,brook,chinadns-ng,dns2socks,dns2tcp,gn,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan,trojan-go,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,gn}
+# 核心库
+git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
+rm -rf package/passwall-packages/{chinadns-ng,naiveproxy,shadowsocks-rust,v2ray-geodata}
+merge_package v5 https://github.com/sbwml/openwrt_helloworld package/passwall-packages chinadns-ng naiveproxy shadowsocks-rust v2ray-geodata
+# app
+rm -rf feeds/luci/applications/{luci-app-passwall,luci-app-ssr-libev-server}
+git clone -b luci-smartdns-dev --single-branch https://github.com/lwb1978/openwrt-passwall package/passwall-luci
+# git clone https://github.com/xiaorouji/openwrt-passwall package/passwall-luci
+# ------------------------------------------------------------
+echo "PassWall 插件切换完成"
+
 #AdguardHome指定commits
 #rm -rf feeds/kenzo/adguardhome
 #rm -rf feeds/kenzo/luci-app-adguardhome
 #merge_commits master https://github.com/kenzok8/openwrt-packages 114ee35443ccb8e0fbb92027134c3887feec9b37 feeds/kenzo adguardhome
 #merge_commits master https://github.com/kenzok8/openwrt-packages 915f448b80ee1adb928a5cfd58c33c678abacb5c feeds/kenzo luci-app-adguardhome
 #echo "AdguardHome 插件切换完成"
+
+# ppp - 2.5.0
+rm -rf package/network/services/ppp
+git clone https://github.com/sbwml/package_network_services_ppp package/network/services/ppp
+echo "ppp 插件切换完成"
 
 # IPSet(Lean源码已跟进)
 #rm -rf package/network/utils/ipset
@@ -93,6 +112,14 @@ rm -rf feeds/small/v2ray-geodata
 git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 echo "MosDNS 插件切换完成"
+
+# SmartDNS
+#rm -rf feeds/luci/applications/luci-app-smartdns
+#git clone --single-branch https://github.com/lwb1978/luci-app-smartdns package/luci-app-smartdns
+# 替换immortalwrt 软件仓库smartdns版本为官方最新版
+#rm -rf feeds/packages/net/smartdns
+#cp -rf ${GITHUB_WORKSPACE}/patch/smartdns feeds/packages/net
+#echo "SmartDNS 插件切换完成"
 
 #Miniupnpd 替换 (ImmortalWRT源码用)
 #rm -rf feeds/packages/net/miniupnpd
@@ -121,6 +148,14 @@ echo "MosDNS 插件切换完成"
 #sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=7367b0df0a0aa25440303998d54045bda73935a5/g' feeds/small/gn/Makefile
 #sed -i 's/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=c11eb62d257f9e41d29139d66e94d3798b013a650dd493ae8759c57e2e64cfd1/g' feeds/small/gn/Makefile
 #echo "GN 插件切换完成"
+
+# 替换curl修改版（无nghttp3、ngtcp2）
+curl_ver=$(cat feeds/packages/net/curl/Makefile | grep -i "PKG_VERSION:=" | awk 'BEGIN{FS="="};{print $2}')
+[ $(check_ver "$curl_ver" "8.9.1") != 0 ] && {
+	echo "替换curl版本"
+	rm -rf feeds/packages/net/curl
+	cp -rf ${GITHUB_WORKSPACE}/patch/curl feeds/packages/net/curl
+}
 
 echo "插件切换操作执行完毕"
 
@@ -160,19 +195,26 @@ cat >> "feeds/luci/applications/luci-app-firewall/po/zh_Hans/firewall.po"  <<-EO
 	msgstr "IPtables 防火墙"
 EOF
 
-# 添加额外非必须软件包
-#
-# git clone https://github.com/linkease/istore.git package/istore
-# sed -i 's/luci-lib-ipkg/luci-base/g' package/feeds/kenzok/luci-app-store/Makefile
+# 精简 UPnP 菜单名称
+sed -i 's#\"title\": \"UPnP IGD \& PCP/NAT-PMP\"#\"title\": \"UPnP\"#g' feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
+# 移动 UPnP 到 “网络” 子菜单
+sed -i 's/services/network/g' feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
 
-###sirpdboy###
-# git clone https://github.com/sirpdboy/sirpdboy-package.git package/sirpdboy-package
-# git clone https://github.com/sirpdboy/luci-theme-opentopd.git package/luci-theme-opentopd
-# git clone https://github.com/sirpdboy/luci-app-advanced.git package/luci-app-advanced
-# git clone https://github.com/sirpdboy/netspeedtest.git package/netspeedtest
-# git clone https://github.com/sirpdboy/luci-app-netdata.git package/luci-app-netdata
-# git clone https://github.com/sirpdboy/luci-app-poweroffdevice.git package/luci-app-poweroffdevice
-# git clone https://github.com/sirpdboy/luci-app-autotimeset.git package/luci-app-autotimeset
+# rpcd - fix timeout
+sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
+sed -i 's#20) \* 1000#60) \* 1000#g' feeds/luci/modules/luci-base/htdocs/luci-static/resources/rpc.js
+
+# vim - fix E1187: Failed to source defaults.vim
+pushd feeds/packages
+	vim_ver=$(cat utils/vim/Makefile | grep -i "PKG_VERSION:=" | awk 'BEGIN{FS="="};{print $2}' | awk 'BEGIN{FS=".";OFS="."};{print $1,$2}')
+	[ "$vim_ver" = "9.0" ] && {
+		echo "修复 vim E1187 的错误"
+		curl -s https://github.com/openwrt/packages/commit/699d3fbee266b676e21b7ed310471c0ed74012c9.patch | patch -p1
+	}
+popd
+
+# 修复编译时提示 freeswitch 缺少 libpcre 依赖
+sed -i 's/+libpcre \\$/+libpcre2 \\/g' package/feeds/telephony/freeswitch/Makefile
 
 # 添加主题
 # argon
