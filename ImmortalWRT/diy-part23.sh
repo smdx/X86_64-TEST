@@ -78,6 +78,7 @@ echo "Golang 插件切换完成"
 # ------------------PassWall 科学上网--------------------------
 # 移除 openwrt feeds 自带的核心库
 rm -rf feeds/packages/net/{xray-core,v2ray-core,v2ray-geodata,sing-box,pdnsd-alt,brook,chinadns-ng,dns2socks,dns2tcp,gn,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan,trojan-go,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,gn}
+rm -rf feeds/small/{xray-core,v2ray-core,v2ray-geodata,sing-box,pdnsd-alt,brook,chinadns-ng,dns2socks,dns2tcp,gn,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan,trojan-go,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,gn}
 # 核心库
 git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
 rm -rf package/passwall-packages/{chinadns-ng,naiveproxy,shadowsocks-rust,v2ray-geodata}
@@ -154,7 +155,7 @@ curl_ver=$(cat feeds/packages/net/curl/Makefile | grep -i "PKG_VERSION:=" | awk 
 [ $(check_ver "$curl_ver" "8.9.1") != 0 ] && {
 	echo "替换curl版本"
 	rm -rf feeds/packages/net/curl
-	cp -rf ${GITHUB_WORKSPACE}/patch/curl feeds/packages/net/curl
+	cp -rf ${GITHUB_WORKSPACE}/patches/curl feeds/packages/net/curl
 }
 
 echo "插件切换操作执行完毕"
