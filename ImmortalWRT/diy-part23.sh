@@ -160,10 +160,41 @@ curl_ver=$(cat feeds/packages/net/curl/Makefile | grep -i "PKG_VERSION:=" | awk 
 
 echo "插件切换操作执行完毕"
 
-# 防火墙页面去掉iptables警告
+# 防火墙4添加自定义nft命令支持
+mirror=raw.githubusercontent.com/sbwml/r4s_build_script/master
+
+curl -s https://$mirror/openwrt/patch/firewall4/100-openwrt-firewall4-add-custom-nft-command-support.patch | patch -p1
+
 pushd feeds/luci
-	patch -p1 < ${GITHUB_WORKSPACE}/patches/0004-luci-firewall-disable-legacy-firewall-rul.patch
+	# 防火墙4添加自定义nft命令选项卡
+	curl -s https://$mirror/openwrt/patch/firewall4/0004-luci-add-firewall-add-custom-nft-rule-support.patch | patch -p1
+	# 状态-防火墙页面去掉iptables警告，并添加nftables、iptables标签页
+	curl -s https://$mirror/openwrt/patch/luci/0004-luci-mod-status-firewall-disable-legacy-firewall-rul.patch | patch -p1
 popd
+
+# 补充 firewall4 luci 中文翻译
+cat >> "feeds/luci/applications/luci-app-firewall/po/zh_Hans/firewall.po" <<-EOF
+	
+	msgid ""
+	"Custom rules allow you to execute arbitrary nft commands which are not "
+	"otherwise covered by the firewall framework. The rules are executed after "
+	"each firewall restart, right after the default ruleset has been loaded."
+	msgstr ""
+	"自定义规则允许您执行不属于防火墙框架的任意 nft 命令。每次重启防火墙时，"
+	"这些规则在默认的规则运行后立即执行。"
+	
+	msgid ""
+	"Applicable to internet environments where the router is not assigned an IPv6 prefix, "
+	"such as when using an upstream optical modem for dial-up."
+	msgstr ""
+	"适用于路由器未分配 IPv6 前缀的互联网环境，例如上游使用光猫拨号时。"
+
+	msgid "NFtables Firewall"
+	msgstr "NFtables 防火墙"
+
+	msgid "IPtables Firewall"
+	msgstr "IPtables 防火墙"
+EOF
 
 # 精简 UPnP 菜单名称
 sed -i 's#\"title\": \"UPnP IGD \& PCP/NAT-PMP\"#\"title\": \"UPnP\"#g' feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
