@@ -5,7 +5,7 @@ mosdns_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' package/mosdns/mosdns/Makefile)
 smartdns_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/kenzo/luci-app-smartdns/Makefile)
 passwall_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/small/luci-app-passwall/Makefile)
 passwall2_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/small/luci-app-passwall2/Makefile)
-openclash_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/kenzo/luci-app-openclash/Makefile)
+openclash_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/small/luci-app-openclash/Makefile)
 store_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/kenzo/luci-app-store/Makefile)
 echo "adguardhome=$adguardhome_version" >> $GITHUB_ENV
 echo "mosdns=$mosdns_version" >> $GITHUB_ENV
