@@ -16,14 +16,23 @@ if [ -n "$REPO_BRANCH" ]; then
     echo "Branch: $capitalized_branch" >> release.txt
 fi
 
-# 读取LINUX_KERNEL版本信息
-if [[ $REPO_URL == *"lede"* ]]; then
-    # 如果地址包含"lede"，执行以下操作
-    grep "LINUX_KERNEL_HASH-" openwrt/include/kernel-6.1 | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
-elif [[ $REPO_URL == *"immortalwrt"* ]]; then
-    # 如果地址包含"immortalwrt"，执行以下操作
-    grep "LINUX_KERNEL_HASH-" openwrt/include/kernel-5.* | sed -E 's/.*LINUX_KERNEL_HASH-([0-9]+\.[0-9]+\.[0-9]+) = .*/内核版本：\1/' >> release.txt
+# OpenWRT 获取内核版本信息
+# 检查 TESTING_KERNEL 设置状态
+if grep -q '^CONFIG_TESTING_KERNEL=y' openwrt/.config; then
+    # 读取 KERNEL_TESTING_PATCHVER 的值
+    KERNEL_PATCHVER=$(grep '^KERNEL_TESTING_PATCHVER:=' openwrt/target/linux/x86/Makefile | cut -d '=' -f2 | tr -d ' ')
+else
+    # 读取 KERNEL_PATCHVER 的值
+    KERNEL_PATCHVER=$(grep '^KERNEL_PATCHVER:=' openwrt/target/linux/x86/Makefile | cut -d '=' -f2 | tr -d ' ')
 fi
+
+# 目标文件路径
+KERNEL_FILE="openwrt/include/kernel-${KERNEL_PATCHVER}"
+
+# 读取 LINUX_KERNEL_HASH-后的数值提取版本号,输出到release.txt
+LINUX_KERNEL_HASH=$(grep "LINUX_KERNEL_HASH-${KERNEL_PATCHVER}" "$KERNEL_FILE")
+VERSION_NUMBER=$(echo $LINUX_KERNEL_HASH | cut -d '=' -f1 | awk -F'-' '{print $NF}' | tr -d ' ')
+echo "内核版本：$VERSION_NUMBER" >> release.txt
 
 # 路由登录信息
 echo "管理地址：10.0.0.1" >> release.txt
