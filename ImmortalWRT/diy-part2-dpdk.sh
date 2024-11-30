@@ -129,6 +129,8 @@ echo "DPDK 插件拉取完成"
 
 echo "插件切换操作执行完毕"
 
+# 移动 nlbwmon 到 状态 子菜单
+sed -i 's/services/status/g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/luci-app-nlbwmon.json
 
 # 添加额外非必须软件包
 #
