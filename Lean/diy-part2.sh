@@ -102,6 +102,11 @@ git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 echo "MosDNS 插件切换完成"
 
+#SmartDNS 替换最新源码Makefile
+rm -rf feeds/kenzo/smartdns/Makefile
+wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
+echo "SmartDNS 插件切换完成"
+
 #替换miniupnpd(ImmortalWRT源码用)
 #rm -rf feeds/packages/net/miniupnpd
 #merge_folder master https://github.com/coolsnowwolf/packages feeds/packages/net net/miniupnpd
