@@ -132,10 +132,14 @@ merge_commits main https://github.com/k13132/openwrt-dpdk e1329c9da0c06cc2994e92
 sed -i '/^define Package\/libdpdk/,/^endef/ s/\(DEPENDS:=.*\)/\1 +libbpf +libelf/' package/new/dpdk/Makefile
 echo "DPDK 插件拉取完成"
 
-echo "插件切换操作执行完毕"
+# luci-app-wrtbwmon拉取插件
+merge_folder main https://github.com/kenzok8/jell package/new luci-app-wrtbwmon wrtbwmon
+echo "luci-app-wrtbwmon 插件拉取完成"
 
 # 移动 nlbwmon 到 状态 子菜单
 sed -i 's/services/status/g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/luci-app-nlbwmon.json
+
+echo "插件切换操作执行完毕"
 
 # 添加额外非必须软件包
 #
