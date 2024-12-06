@@ -127,6 +127,37 @@ echo "Dnsmasq 插件切换完成"
 #sed -i 's/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=c11eb62d257f9e41d29139d66e94d3798b013a650dd493ae8759c57e2e64cfd1/g' feeds/small/gn/Makefile
 #echo "GN 插件切换完成"
 
+# luci-app-wrtbwmon拉取插件
+merge_folder main https://github.com/kenzok8/jell package/new luci-app-wrtbwmon wrtbwmon
+sed -i 's/network/status/g' package/new/luci-app-wrtbwmon/root/usr/share/luci/menu.d/luci-app-wrtbwmon.json
+sed -i '1,$c\
+{\
+	"protocol": "ipv4",\
+	"interval": "2",\
+	"showColumns": [\
+		"thClient",\
+		"thDownload",\
+		"thUpload",\
+		"thTotalDown",\
+		"thTotalUp",\
+		"thTotal"\
+	],\
+	"showZero": true,\
+	"useBits": false,\
+	"useMultiple": "1000",\
+	"useDSL": false,\
+	"upstream": "100",\
+	"downstream": "100",\
+	"hideMACs": [\
+		"00:00:00:00:00:00"\
+	]\
+}' package/new/luci-app-wrtbwmon/root/etc/luci-wrtbwmon.conf
+
+echo "luci-app-wrtbwmon 插件拉取完成"
+
+# 移动 nlbwmon 到 状态 子菜单
+sed -i 's/services/status/g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/luci-app-nlbwmon.json
+
 echo "插件切换操作执行完毕"
 
 
