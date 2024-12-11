@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: Build immortalwrt_21.02
+name: Build immortalwrt_21.02-DPDK
 
 on:
   repository_dispatch:
@@ -19,18 +19,18 @@ on:
         required: false
         default: 'false'
 
-# 每周三 执行编译
-#  schedule:
-#    - cron: '30 0 * * 3'
+ # 每周一 执行编译
+  schedule:
+    - cron: '30 0 * * 1'
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-21.02
   FILES: ImmortalWRT/files
   FEEDS_CONF: ImmortalWRT/feeds.conf.default
-  CONFIG_FILE: ImmortalWRT/openwrt-immortalwrt-21.02.config
+  CONFIG_FILE: ImmortalWRT/immortalwrt-DPDK.config
   DIY_P1_SH: ImmortalWRT/diy-part1.sh
-  DIY_P2_SH: ImmortalWRT/diy-part2.sh
+  DIY_P2_SH: ImmortalWRT/diy-part2-dpdk.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
@@ -82,6 +82,7 @@ jobs:
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
         sudo -E apt-get -yqq install $(cat $GITHUB_WORKSPACE/depends-ubuntu-2004)
+        sudo -E apt-get -qq install libbpf-dev
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
@@ -205,7 +206,7 @@ jobs:
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-        echo "release_tag=$(date +"%Y.%m.%d-%H%M")-ImmortalWrt" >> $GITHUB_OUTPUT
+        echo "release_tag=$(date +"%Y.%m.%d-%H%M")-ImmortalWrt-DPDK" >> $GITHUB_OUTPUT
         touch release.txt
         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt

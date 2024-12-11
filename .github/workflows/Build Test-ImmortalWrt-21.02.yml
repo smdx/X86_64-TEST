@@ -28,7 +28,7 @@ env:
   REPO_BRANCH: openwrt-21.02
   FILES: ImmortalWRT/files
   FEEDS_CONF: ImmortalWRT/feeds.conf.default
-  CONFIG_FILE: ImmortalWRT/openwrt-immortalwrt-21.02.config
+  CONFIG_FILE: ImmortalWRT/immortalwrt-21.02.config
   DIY_P1_SH: ImmortalWRT/diy-part1.sh
   DIY_P2_SH: ImmortalWRT/diy-part2.sh
   UPLOAD_BIN_DIR: false
