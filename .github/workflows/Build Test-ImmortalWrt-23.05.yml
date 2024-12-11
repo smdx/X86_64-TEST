@@ -116,8 +116,6 @@ jobs:
         chmod +x $GITHUB_WORKSPACE/scripts/*.sh
         chmod +x $DIY_P2_SH
         cd openwrt
-        sed -i 's/ +libopenssl-legacy//g' feeds/small/shadowsocksr-libev/Makefile
-        sed -i 's/ +kmod-nft-tproxy//g' feeds/small/v2raya/Makefile
         chmod -R 755 files
         chmod 600 files/etc/config/ttyd
         patch -p1 < "${GITHUB_WORKSPACE}/patches/sysctl.patch"
