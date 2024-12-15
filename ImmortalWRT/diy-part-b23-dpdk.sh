@@ -29,8 +29,8 @@ source ${GITHUB_WORKSPACE}/scripts/function.sh
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
-# x86 型号只显示 CPU 型号
-sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/emortal/autocore/files/x86/autocore
+# x86 型号只显示 CPU 型号 for Lede
+# sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/emortal/autocore/files/x86/autocore
 
 #修正连接数（by ベ七秒鱼ベ）
 sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=165535' package/base-files/files/etc/sysctl.conf
@@ -77,16 +77,27 @@ sed -i 's#20) \* 1000#60) \* 1000#g' feeds/luci/modules/luci-base/htdocs/luci-st
 
 # 移除要替换的包
 rm -rf feeds/luci/applications/luci-app-mosdns
-rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
+rm -rf feeds/packages/net/{alist,adguardhome,mosdns,smartdns}
 rm -rf feeds/packages/utils/v2dat
-rm -rf feeds/packages/lang/golang
 
 # 插件切换到指定版本
 echo "开始执行切换插件到指定版本"
-# Golang 1.23
+# Golang 1.23.4
 rm -rf feeds/packages/lang/golang
-git clone --depth=1 https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
+git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 echo "Golang 插件切换完成"
+
+#改用MosDNS源码：
+rm -rf feeds/small/luci-app-mosdns
+rm -rf feeds/small/v2ray-geodata
+git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
+git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+echo "MosDNS 插件切换完成"
+
+#SmartDNS 替换最新源码Makefile
+rm -rf feeds/kenzo/smartdns/Makefile
+wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
+echo "SmartDNS 插件切换完成"
 
 # ------------------PassWall 科学上网--------------------------
 # 移除 openwrt feeds 自带的核心库
@@ -98,8 +109,12 @@ rm -rf package/passwall-packages/{chinadns-ng,naiveproxy,shadowsocks-rust,v2ray-
 merge_folder v5 https://github.com/sbwml/openwrt_helloworld package/passwall-packages chinadns-ng naiveproxy shadowsocks-rust v2ray-geodata
 # app
 rm -rf feeds/luci/applications/{luci-app-passwall,luci-app-ssr-libev-server}
-git clone -b luci-smartdns-dev --single-branch https://github.com/lwb1978/openwrt-passwall package/passwall-luci
-# git clone https://github.com/xiaorouji/openwrt-passwall package/passwall-luci
+rm -rf feeds/small/{luci-app-passwall,luci-app-passwall2}
+merge_folder main https://github.com/xiaorouji/openwrt-passwall package/passwall-packages luci-app-passwall
+merge_folder main https://github.com/xiaorouji/openwrt-passwall2 package/passwall-packages luci-app-passwall2
+# git clone -b luci-smartdns-dev --single-branch https://github.com/lwb1978/openwrt-passwall package/passwall-luci
+# git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
+# git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2 package/luci-app-passwall2
 # ------------------------------------------------------------
 echo "PassWall 插件切换完成"
 
@@ -119,18 +134,6 @@ echo "ppp 插件切换完成"
 #rm -rf package/network/utils/ipset
 #merge_commits main https://github.com/openwrt/openwrt 9f6a28b91e30de9c6875afbe1493934218dbfb49 package/network/utils package/network/utils/ipset
 #echo "IPSet 插件切换完成"
-
-#改用MosDNS源码：
-rm -rf feeds/small/luci-app-mosdns
-rm -rf feeds/small/v2ray-geodata
-git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
-git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
-echo "MosDNS 插件切换完成"
-
-#SmartDNS 替换最新源码Makefile
-rm -rf feeds/kenzo/smartdns/Makefile
-wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
-echo "SmartDNS 插件切换完成"
 
 #Dnsmasq 版本替换
 #rm -rf package/network/services/dnsmasq
@@ -283,7 +286,7 @@ mkdir -p package/system/opkg/patches
 curl -s $mirror/openwrt/patch/opkg/900-opkg-download-disable-hsts.patch > package/system/opkg/patches/900-opkg-download-disable-hsts.patch
 
 # Realtek driver - R8168 & R8125 & R8126 & R8152 & R8101
-rm -rf package/kernel/r8168 package/kernel/r8101 package/kernel/r8125 package/kernel/r8126
+rm -rf package/kernel/{r8168,r8152,r8101,r8125,r8126}
 git clone https://$github/sbwml/package_kernel_r8168 package/kernel/r8168
 git clone https://$github/sbwml/package_kernel_r8152 package/kernel/r8152
 git clone https://$github/sbwml/package_kernel_r8101 package/kernel/r8101
