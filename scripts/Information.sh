@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "开始执行固件信息输出操作……"
+echo "========================="
+
 # OpenWrt Source Information
 if [[ $REPO_URL == *"lede"* ]]; then
     # 如果地址包含"lede"，执行以下操作
@@ -103,3 +106,6 @@ for plugin in "${selected_plugins[@]}"; do
             ;;
     esac
 done
+
+echo "========================="
+echo " 固件信息输出操作完成……"

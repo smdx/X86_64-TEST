@@ -1,5 +1,9 @@
 #!/bin/bash
 # Package  Version Output to Env
+
+echo "获取插件包版本信息输出到 GITHUB_ENV......"
+echo "========================="
+
 adguardhome_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' feeds/kenzo/adguardhome/Makefile)
 mosdns_version=$(grep -oP 'PKG_VERSION:=\K[^ ]+' package/mosdns/mosdns/Makefile)
 mosdns_release=$(grep -oP 'PKG_RELEASE:=\K[^ ]+' package/mosdns/mosdns/Makefile)
@@ -19,3 +23,6 @@ echo "passwall_version=${passwall_version}-${passwall_release}" >> $GITHUB_ENV
 echo "passwall2_version=${passwall2_version}-${passwall2_release}" >> $GITHUB_ENV
 echo "openclash=${openclash_version}-${openclash_release}" >> $GITHUB_ENV
 echo "store=$store_version" >> $GITHUB_ENV
+
+echo "========================="
+echo "插件包版本信息输出完毕。"

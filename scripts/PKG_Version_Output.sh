@@ -1,6 +1,9 @@
 #!/bin/bash
 # Package Versions Output
 
+echo "开始执行固件信息输出操作......"
+echo "========================="
+
 if [[ $REPO_URL == *"lede"* ]]; then
     # 如果地址包含"lede"，执行以下操作
     echo "Openwrt Lean-x86" >> release.txt
@@ -29,3 +32,6 @@ elif [[ $REPO_URL == *"immortalwrt"* ]]; then
     echo "Passwall2 Version: $passwall2_version" >> release.txt
     echo "Store Version: $store" >> release.txt
 fi
+
+echo "========================="
+echo " 固件信息输出操作完成……"
