@@ -90,28 +90,28 @@ echo "---------------------------------------------" >> release.txt
 for plugin in "${selected_plugins[@]}"; do
     case $plugin in
         "AdGuard_Home")
-            echo "AdguardHome Version: ${adguardhome}" >> release.txt
+            echo "AdguardHome Version: $adguardhome" >> release.txt
             ;;
         "MosDNS")
-            echo "MosDNS Version: ${mosdns}" >> release.txt
+            echo "MosDNS Version: $mosdns" >> release.txt
             ;;
         "SmartDNS")
-            echo "SmartDNS Version: ${smartdns}" >> release.txt
+            echo "SmartDNS Version: $smartdns" >> release.txt
             ;;
         "Passwall")
-            echo "Passwall Version: ${passwall}" >> release.txt
+            echo "Passwall Version: $passwall_version" >> release.txt
             ;;
         "Passwall2")
-            echo "Passwall2 Version: ${passwall2}" >> release.txt
-            ;;
-        "MiHomo")
-            echo "MiHomo Version: ${mihomo}" >> release.txt
+            echo "Passwall2 Version: $passwall2_version" >> release.txt
             ;;
         "OpenClash")
-            echo "OpenClash Version: ${openclash}" >> release.txt
+            echo "OpenClash Version: $openclash" >> release.txt
+            ;;
+        "MiHomo")
+            echo "MiHomo Version: $mihomo" >> release.txt
             ;;
         "Store")
-            echo "Store Version: ${store}" >> release.txt
+            echo "Store Version: $store" >> release.txt
             ;;
     esac
 done
