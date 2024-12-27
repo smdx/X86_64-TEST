@@ -29,8 +29,8 @@ source ${GITHUB_WORKSPACE}/scripts/function.sh
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
-# x86 型号只显示 CPU 型号
-sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/emortal/autocore/files/x86/autocore
+# x86 型号只显示 CPU 型号 for Lede
+# sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/emortal/autocore/files/x86/autocore
 
 #修正连接数（by ベ七秒鱼ベ）
 sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=165535' package/base-files/files/etc/sysctl.conf
@@ -43,15 +43,12 @@ sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=165535' packag
 #PVE VirtIO半虚拟网卡状态页显示半双工修改
 sed -i '/exit 0/i ethtool -s eth0 speed 2500 duplex full\nethtool -s eth1 speed 2500 duplex full' package/base-files/files/etc/rc.local
 
+# 修复procps-ng-top导致首页cpu使用率无法获取
+sed -i 's#top -n1#\/bin\/busybox top -n1#g' feeds/luci/modules/luci-base/root/usr/share/rpcd/ucode/luci
+
 # 设置ttyd免帐号登录
 #uci set ttyd.@ttyd[0].command='/bin/login -f root'
 #uci commit ttyd
-
-#nlbwmon 修复log警报
-#sed -i '/customized in this file/a net.core.rmem_default=16777216' package/base-files/files/etc/sysctl.conf
-#sed -i '/customized in this file/a net.core.wmem_default=16777216' package/base-files/files/etc/sysctl.conf
-#sed -i '/customized in this file/a net.core.rmem_max=16777216' package/base-files/files/etc/sysctl.conf
-#sed -i '/customized in this file/a net.core.wmem_max=16777216' package/base-files/files/etc/sysctl.conf
 
 # MSD组播转换luci
 rm -rf feeds/luci/applications/luci-app-msd_lite
@@ -63,30 +60,63 @@ cp -f ${GITHUB_WORKSPACE}/patches/udpxy/Makefile feeds/packages/net/udpxy/
 # 修改 udpxy 菜单名称为大写
 #sed -i 's#_(\"udpxy\")#_(\"UDPXY\")#g' feeds/luci/applications/luci-app-udpxy/luasrc/controller/udpxy.lua
 
+# uwsgi - fix timeout
+sed -i '$a cgi-timeout = 600' feeds/packages/net/uwsgi/files-luci-support/luci-*.ini
+sed -i '/limit-as/c\limit-as = 5000' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
+# disable error log
+sed -i "s/procd_set_param stderr 1/procd_set_param stderr 0/g" feeds/packages/net/uwsgi/files/uwsgi.init
+
+# uwsgi - performance
+sed -i 's/threads = 1/threads = 2/g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
+sed -i 's/processes = 3/processes = 4/g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
+sed -i 's/cheaper = 1/cheaper = 2/g' feeds/packages/net/uwsgi/files-luci-support/luci-webui.ini
+
+# rpcd - fix timeout
+sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
+sed -i 's#20) \* 1000#60) \* 1000#g' feeds/luci/modules/luci-base/htdocs/luci-static/resources/rpc.js
+
+### 插件切换到指定版本
+echo "开始执行切换插件到指定版本"
+
 # 移除要替换的包
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
-rm -rf feeds/packages/lang/golang
 
-# 插件切换到指定版本
-echo "开始执行切换插件到指定版本"
-# Golang
-git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+# Golang 1.23.4
+rm -rf feeds/packages/lang/golang
+git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 echo "Golang 插件切换完成"
 
+# MosDNS
+rm -rf feeds/small/mosdns
+rm -rf feeds/small/luci-app-mosdns
+git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/new/mosdns
+echo "MosDNS 插件切换完成"
+
+# SmartDNS
+rm -rf feeds/luci/applications/luci-app-smartdns
+git clone https://github.com/lwb1978/luci-app-smartdns package/new/luci-app-smartdns
+# 替换immortalwrt 软件仓库smartdns版本为官方最新版
+rm -rf feeds/packages/net/smartdns
+merge_folder main https://github.com/lwb1978/OpenWrt-Actions package/new patch/smartdns
+#rm -rf feeds/kenzo/smartdns/Makefile
+#wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
+echo "SmartDNS 插件切换完成"
+
 # ------------------PassWall 科学上网--------------------------
-# 移除 openwrt feeds 自带的核心库
-rm -rf feeds/packages/net/{xray-core,v2ray-core,v2ray-geodata,sing-box,pdnsd-alt,brook,chinadns-ng,dns2socks,dns2tcp,gn,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan,trojan-go,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,gn}
-rm -rf feeds/small/{xray-core,v2ray-core,v2ray-geodata,sing-box,pdnsd-alt,brook,chinadns-ng,dns2socks,dns2tcp,gn,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan,trojan-go,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,gn}
-# 核心库
-git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
-rm -rf package/passwall-packages/{chinadns-ng,naiveproxy,shadowsocks-rust,v2ray-geodata}
-merge_folder v5 https://github.com/sbwml/openwrt_helloworld package/passwall-packages chinadns-ng naiveproxy shadowsocks-rust v2ray-geodata
-# app
-rm -rf feeds/luci/applications/{luci-app-passwall,luci-app-ssr-libev-server}
-git clone -b luci-smartdns-dev --single-branch https://github.com/lwb1978/openwrt-passwall package/passwall-luci
-# git clone https://github.com/xiaorouji/openwrt-passwall package/passwall-luci
+# 移除 openwrt feeds 自带的app
+rm -rf feeds/luci/applications/luci-app-passwall
+rm -rf feeds/small/luci-app-passwall
+rm -rf feeds/small/luci-app-passwall2
+merge_folder main https://github.com/xiaorouji/openwrt-passwall package/new luci-app-passwall
+merge_folder main https://github.com/xiaorouji/openwrt-passwall2 package/new luci-app-passwall2
+# PW New Dnsmasq 防火墙重定向修改为默认关闭
+# sed -i 's/local RUN_NEW_DNSMASQ=1/local RUN_NEW_DNSMASQ=0/' feeds/small/luci-app-passwall/root/usr/share/passwall/app.sh
+#
+# git clone -b luci-smartdns-dev --single-branch https://github.com/lwb1978/openwrt-passwall package/passwall-luci
+# git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
+# git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2 package/luci-app-passwall2
 # ------------------------------------------------------------
 echo "PassWall 插件切换完成"
 
@@ -106,26 +136,6 @@ echo "ppp 插件切换完成"
 #rm -rf package/network/utils/ipset
 #merge_commits main https://github.com/openwrt/openwrt 9f6a28b91e30de9c6875afbe1493934218dbfb49 package/network/utils package/network/utils/ipset
 #echo "IPSet 插件切换完成"
-
-#改用MosDNS源码：
-rm -rf feeds/small/luci-app-mosdns
-rm -rf feeds/small/v2ray-geodata
-git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
-git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
-echo "MosDNS 插件切换完成"
-
-# SmartDNS
-#rm -rf feeds/luci/applications/luci-app-smartdns
-#git clone --single-branch https://github.com/lwb1978/luci-app-smartdns package/luci-app-smartdns
-# 替换immortalwrt 软件仓库smartdns版本为官方最新版
-#rm -rf feeds/packages/net/smartdns
-#cp -rf ${GITHUB_WORKSPACE}/patch/smartdns feeds/packages/net
-#echo "SmartDNS 插件切换完成"
-
-#Miniupnpd 替换 (ImmortalWRT源码用)
-#rm -rf feeds/packages/net/miniupnpd
-#merge_folder master https://github.com/coolsnowwolf/packages feeds/packages/net net/miniupnpd
-#echo "Miniupnpd 插件切换完成"
 
 #Dnsmasq 版本替换
 #rm -rf package/network/services/dnsmasq
@@ -158,18 +168,64 @@ curl_ver=$(cat feeds/packages/net/curl/Makefile | grep -i "PKG_VERSION:=" | awk 
 	cp -rf ${GITHUB_WORKSPACE}/patches/curl feeds/packages/net/curl
 }
 
-echo "插件切换操作执行完毕"
+# 移动 WOL 到 “网络” 子菜单
+sed -i 's/services/network/g' feeds/luci/applications/luci-app-wol/root/usr/share/luci/menu.d/luci-app-wol.json
+
+# luci-app-wrtbwmon拉取插件
+merge_folder main https://github.com/kenzok8/jell package/new luci-app-wrtbwmon wrtbwmon
+sed -i 's/network/status/g' package/new/luci-app-wrtbwmon/root/usr/share/luci/menu.d/luci-app-wrtbwmon.json
+sed -i '1,$c\
+{\
+	"protocol": "ipv4",\
+	"interval": "2",\
+	"showColumns": [\
+		"thClient",\
+		"thDownload",\
+		"thUpload",\
+		"thTotalDown",\
+		"thTotalUp",\
+		"thTotal"\
+	],\
+	"showZero": true,\
+	"useBits": false,\
+	"useMultiple": "1000",\
+	"useDSL": false,\
+	"upstream": "100",\
+	"downstream": "100",\
+	"hideMACs": [\
+		"00:00:00:00:00:00"\
+	]\
+}' package/new/luci-app-wrtbwmon/root/etc/luci-wrtbwmon.conf
+
+echo "luci-app-wrtbwmon 插件拉取完成"
+
+# vim - fix E1187: Failed to source defaults.vim
+pushd feeds/packages
+	vim_ver=$(cat utils/vim/Makefile | grep -i "PKG_VERSION:=" | awk 'BEGIN{FS="="};{print $2}' | awk 'BEGIN{FS=".";OFS="."};{print $1,$2}')
+	[ "$vim_ver" = "9.0" ] && {
+		echo "修复 vim E1187 的错误"
+		curl -s https://github.com/openwrt/packages/commit/699d3fbee266b676e21b7ed310471c0ed74012c9.patch | patch -p1
+	}
+popd
+
+# 修复编译时提示 freeswitch 缺少 libpcre 依赖
+sed -i 's/+libpcre \\$/+libpcre2 \\/g' package/feeds/telephony/freeswitch/Makefile
+
+# private gitea
+export gitea=git.cooluc.com
+# script url
+export mirror=https://init.cooluc.com
+# github mirror
+export github="github.com"
 
 # 防火墙4添加自定义nft命令支持
-mirror=raw.githubusercontent.com/sbwml/r4s_build_script/master
-
-curl -s https://$mirror/openwrt/patch/firewall4/100-openwrt-firewall4-add-custom-nft-command-support.patch | patch -p1
+patch -p1 < ${GITHUB_WORKSPACE}/patches/firewall4/100-openwrt-firewall4-add-custom-nft-command-support.patch
 
 pushd feeds/luci
 	# 防火墙4添加自定义nft命令选项卡
-	curl -s https://$mirror/openwrt/patch/firewall4/0004-luci-add-firewall-add-custom-nft-rule-support.patch | patch -p1
+	patch -p1 < ${GITHUB_WORKSPACE}/patches/firewall4/0004-luci-add-firewall-add-custom-nft-rule-support.patch
 	# 状态-防火墙页面去掉iptables警告，并添加nftables、iptables标签页
-	curl -s https://$mirror/openwrt/patch/luci/0004-luci-mod-status-firewall-disable-legacy-firewall-rul.patch | patch -p1
+	patch -p1 < ${GITHUB_WORKSPACE}/patches/firewall4/0004-luci-mod-status-firewall-disable-legacy-firewall-rul.patch
 popd
 
 # 补充 firewall4 luci 中文翻译
@@ -196,34 +252,49 @@ cat >> "feeds/luci/applications/luci-app-firewall/po/zh_Hans/firewall.po" <<-EOF
 	msgstr "IPtables 防火墙"
 EOF
 
+echo "Firewall4 防火墙操作完成"
+
+# UPnP
+rm -rf feeds/{packages/net/miniupnpd,luci/applications/luci-app-upnp}
+git clone https://$gitea/sbwml/miniupnpd feeds/packages/net/miniupnpd -b v2.3.7
+git clone https://$gitea/sbwml/luci-app-upnp feeds/luci/applications/luci-app-upnp -b main
+
 # 精简 UPnP 菜单名称
 sed -i 's#\"title\": \"UPnP IGD \& PCP/NAT-PMP\"#\"title\": \"UPnP\"#g' feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
 # 移动 UPnP 到 “网络” 子菜单
 sed -i 's/services/network/g' feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json
 
-# rpcd - fix timeout
-sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
-sed -i 's#20) \* 1000#60) \* 1000#g' feeds/luci/modules/luci-base/htdocs/luci-static/resources/rpc.js
+# natmap
+#pushd feeds/luci
+#    curl -s $mirror/openwrt/patch/luci/applications/luci-app-natmap/0001-luci-app-natmap-add-default-STUN-server-lists.patch | patch -p1
+#popd
 
-# vim - fix E1187: Failed to source defaults.vim
-pushd feeds/packages
-	vim_ver=$(cat utils/vim/Makefile | grep -i "PKG_VERSION:=" | awk 'BEGIN{FS="="};{print $2}' | awk 'BEGIN{FS=".";OFS="."};{print $1,$2}')
-	[ "$vim_ver" = "9.0" ] && {
-		echo "修复 vim E1187 的错误"
-		curl -s https://github.com/openwrt/packages/commit/699d3fbee266b676e21b7ed310471c0ed74012c9.patch | patch -p1
-	}
-popd
+# SQM Translation
+mkdir -p feeds/packages/net/sqm-scripts/patches
+curl -s $mirror/openwrt/patch/sqm/001-help-translation.patch > feeds/packages/net/sqm-scripts/patches/001-help-translation.patch
 
-# 修复编译时提示 freeswitch 缺少 libpcre 依赖
-sed -i 's/+libpcre \\$/+libpcre2 \\/g' package/feeds/telephony/freeswitch/Makefile
+# opkg
+mkdir -p package/system/opkg/patches
+curl -s $mirror/openwrt/patch/opkg/900-opkg-download-disable-hsts.patch > package/system/opkg/patches/900-opkg-download-disable-hsts.patch
+
+# Realtek driver - R8168 & R8125 & R8126 & R8152 & R8101
+rm -rf package/kernel/{r8168,r8152,r8101,r8125,r8126}
+git clone https://$github/sbwml/package_kernel_r8168 package/kernel/r8168
+git clone https://$github/sbwml/package_kernel_r8152 package/kernel/r8152
+git clone https://$github/sbwml/package_kernel_r8101 package/kernel/r8101
+git clone https://$github/sbwml/package_kernel_r8125 package/kernel/r8125
+git clone https://$github/sbwml/package_kernel_r8126 package/kernel/r8126
+
+echo "插件自定义操作执行完毕"
 
 # 添加主题
 # argon
 rm -rf feeds/kenzo/luci-app-argon-config
 rm -rf feeds/kenzo/luci-theme-argon
 rm -rf feeds/luci/themes/luci-theme-argon
-merge_folder main https://github.com/sbwml/luci-theme-argon package/openwrt-packages luci-app-argon-config luci-theme-argon
-#
+merge_folder main https://github.com/sbwml/luci-theme-argon package/new luci-app-argon-config luci-theme-argon
+echo "luci-theme-argon 替换完成"
+
 # git clone https://github.com/xiaoqingfengATGH/luci-theme-infinityfreedom.git package/luci-theme-infinityfreedom
 # git clone https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 
@@ -248,5 +319,8 @@ merge_folder main https://github.com/sbwml/luci-theme-argon package/openwrt-pack
 #git clone https://github.com/pymumu/smartdns.git package/smartdns
 
 #echo 'refresh feeds'
-#./scripts/feeds update -a
-#./scripts/feeds install -a
+# ./scripts/feeds update -a
+# ./scripts/feeds install -a
+
+echo "========================="
+echo " DIY2 配置完成……"

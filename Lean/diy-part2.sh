@@ -86,8 +86,9 @@ rm -rf feeds/packages/lang/golang
 
 # 插件切换到指定版本
 echo "开始执行切换插件到指定版本"
-# Golang
-git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+
+# Golang 1.23.4
+git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 echo "Golang 插件切换完成"
 
 # IPSet(Lean源码已跟进)
@@ -95,39 +96,41 @@ echo "Golang 插件切换完成"
 #merge_commits main https://github.com/openwrt/openwrt 9f6a28b91e30de9c6875afbe1493934218dbfb49 package/network/utils package/network/utils/ipset
 #echo "IPSet 插件切换完成"
 
-#改用MosDNS源码：
+# MosDNS
+rm -rf feeds/small/mosdns
 rm -rf feeds/small/luci-app-mosdns
-rm -rf feeds/small/v2ray-geodata
-git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
-git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
+git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/new/mosdns
 echo "MosDNS 插件切换完成"
 
-#SmartDNS 替换最新源码Makefile
-rm -rf feeds/kenzo/smartdns/Makefile
-wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
+# SmartDNS
+rm -rf feeds/luci/applications/luci-app-smartdns
+git clone https://github.com/lwb1978/luci-app-smartdns package/new/luci-app-smartdns
+# 替换immortalwrt 软件仓库smartdns版本为官方最新版
+rm -rf feeds/packages/net/smartdns
+merge_folder main https://github.com/lwb1978/OpenWrt-Actions package/new patch/smartdns
+#rm -rf feeds/kenzo/smartdns/Makefile
+#wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
 echo "SmartDNS 插件切换完成"
+
+# ------------------PassWall 科学上网--------------------------
+# 移除 openwrt feeds 自带的app
+rm -rf feeds/luci/applications/luci-app-passwall
+rm -rf feeds/small/luci-app-passwall
+rm -rf feeds/small/luci-app-passwall2
+merge_folder main https://github.com/xiaorouji/openwrt-passwall package/new luci-app-passwall
+merge_folder main https://github.com/xiaorouji/openwrt-passwall2 package/new luci-app-passwall2
+# PW New Dnsmasq 防火墙重定向修改为默认关闭
+# sed -i 's/local RUN_NEW_DNSMASQ=1/local RUN_NEW_DNSMASQ=0/' feeds/small/luci-app-passwall/root/usr/share/passwall/app.sh
+#
+# git clone -b luci-smartdns-dev --single-branch https://github.com/lwb1978/openwrt-passwall package/passwall-luci
+# git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall package/luci-app-passwall
+# git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2 package/luci-app-passwall2
+# ------------------------------------------------------------
+echo "PassWall 插件切换完成"
 
 #替换miniupnpd(ImmortalWRT源码用)
 #rm -rf feeds/packages/net/miniupnpd
 #merge_folder master https://github.com/coolsnowwolf/packages feeds/packages/net net/miniupnpd
-        
-# OpenSSL
-#pushd package/libs/openssl
-#git checkout 4fd8d7b7f8b7752ba8bb06e0d43808d0c5fddde0
-#popd
-#echo "OpenSSL 插件切换完成"
-
-# Curl
-#sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=8.5.0/g' feeds/packages/net/curl/Makefile
-#sed -i 's/PKG_HASH:=.*/PKG_HASH:=ce4b6a6655431147624aaf582632a36fe1ade262d5fab385c60f78942dd8d87b/g' feeds/packages/net/curl/Makefile
-#sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' feeds/packages/net/curl/Makefile
-#echo "Curl 插件切换完成"
-
-# GN
-#sed -i 's/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=2023-11-17/g' feeds/small/gn/Makefile
-#sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=7367b0df0a0aa25440303998d54045bda73935a5/g' feeds/small/gn/Makefile
-#sed -i 's/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=c11eb62d257f9e41d29139d66e94d3798b013a650dd493ae8759c57e2e64cfd1/g' feeds/small/gn/Makefile
-#echo "GN 插件切换完成"
 
 echo "插件切换操作执行完毕"
 

@@ -88,18 +88,20 @@ rm -rf feeds/packages/lang/golang
 git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 echo "Golang 插件切换完成"
 
-#改用MosDNS源码：
+# MosDNS
+rm -rf feeds/small/mosdns
 rm -rf feeds/small/luci-app-mosdns
-git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
+git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/new/mosdns
 echo "MosDNS 插件切换完成"
 
-#SmartDNS 替换最新源码Makefile
+# SmartDNS
+rm -rf feeds/luci/applications/luci-app-smartdns
+git clone https://github.com/lwb1978/luci-app-smartdns package/new/luci-app-smartdns
+# 替换immortalwrt 软件仓库smartdns版本为官方最新版
+rm -rf feeds/packages/net/smartdns
+merge_folder main https://github.com/lwb1978/OpenWrt-Actions package/new patch/smartdns
 #rm -rf feeds/kenzo/smartdns/Makefile
 #wget -O feeds/kenzo/smartdns/Makefile https://raw.githubusercontent.com/kenzok8/jell/refs/heads/main/smartdns/Makefile
-rm -rf feeds/kenzo/smartdns
-rm -rf feeds/kenzo/luci-app-smartdns
-merge_commits main https://github.com/kenzok8/jell 59180e93e6f56881674a3462d45a238c3ace2403 feeds/kenzo smartdns
-merge_commits main https://github.com/kenzok8/jell abcd55db845cf0059405050e9faa9fab91ee7632 feeds/kenzo luci-app-smartdns
 echo "SmartDNS 插件切换完成"
 
 # ------------------PassWall 科学上网--------------------------
@@ -107,8 +109,8 @@ echo "SmartDNS 插件切换完成"
 rm -rf feeds/luci/applications/luci-app-passwall
 rm -rf feeds/small/luci-app-passwall
 rm -rf feeds/small/luci-app-passwall2
-merge_folder main https://github.com/xiaorouji/openwrt-passwall feeds/small luci-app-passwall
-merge_folder main https://github.com/xiaorouji/openwrt-passwall2 feeds/small luci-app-passwall2
+merge_folder main https://github.com/xiaorouji/openwrt-passwall package/new luci-app-passwall
+merge_folder main https://github.com/xiaorouji/openwrt-passwall2 package/new luci-app-passwall2
 # PW New Dnsmasq 防火墙重定向修改为默认关闭
 # sed -i 's/local RUN_NEW_DNSMASQ=1/local RUN_NEW_DNSMASQ=0/' feeds/small/luci-app-passwall/root/usr/share/passwall/app.sh
 #
