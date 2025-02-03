@@ -270,22 +270,22 @@ sed -i 's/services/network/g' feeds/luci/applications/luci-app-upnp/root/usr/sha
 #popd
 
 # GCC Optimization level -O3
-curl -s $mirror/openwrt/patch/target-modify_for_x86_64.patch | patch -p1
+curl -s https://raw.githubusercontent.com/smdx/X86_64-Actions/refs/heads/main/patches/target-modify_for_x86_64.patch | patch -p1
 
 # DPDK
 merge_folder master https://github.com/sbwml/r4s_build_script package/new openwrt/patch/dpdk/dpdk openwrt/patch/dpdk/numactl
 echo "DPDK 插件拉取完成"
 
 # kselftests-bpf
-curl -s $mirror/openwrt/patch/packages-patches/kselftests-bpf/Makefile > package/devel/kselftests-bpf/Makefile
+curl -s https://raw.githubusercontent.com/smdx/X86_64-Actions/refs/heads/main/patches/packages-patches/kselftests-bpf/Makefile > package/devel/kselftests-bpf/Makefile
 
 # SQM Translation
 mkdir -p feeds/packages/net/sqm-scripts/patches
-curl -s $mirror/openwrt/patch/sqm/001-help-translation.patch > feeds/packages/net/sqm-scripts/patches/001-help-translation.patch
+curl -s https://raw.githubusercontent.com/smdx/X86_64-Actions/refs/heads/main/patches/sqm/001-help-translation.patch > feeds/packages/net/sqm-scripts/patches/001-help-translation.patch
 
 # opkg
 mkdir -p package/system/opkg/patches
-curl -s $mirror/openwrt/patch/opkg/900-opkg-download-disable-hsts.patch > package/system/opkg/patches/900-opkg-download-disable-hsts.patch
+curl -s https://raw.githubusercontent.com/smdx/X86_64-Actions/refs/heads/main/patches/opkg/900-opkg-download-disable-hsts.patch > package/system/opkg/patches/900-opkg-download-disable-hsts.patch
 
 # Realtek driver - R8168 & R8125 & R8126 & R8152 & R8101
 rm -rf package/kernel/{r8168,r8152,r8101,r8125,r8126}
