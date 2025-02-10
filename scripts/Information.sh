@@ -44,14 +44,15 @@ echo "默认密码：空" >> release.txt
 # 定义需要检查的插件列表
 declare -A plugins
 plugins=(
-    ["AdGuard_Home"]="luci-app-adguardhome"
+    ["AdGuard Home"]="luci-app-adguardhome"
     ["MosDNS"]="luci-app-mosdns"
     ["SmartDNS"]="luci-app-smartdns"
     ["Passwall"]="luci-app-passwall"
     ["Passwall2"]="luci-app-passwall2"
     ["OpenClash"]="luci-app-openclash"
-    ["MiHomo"]="luci-app-mihomo"
-    ["HomeProxy"]="luci-app-homeproxy"
+    ["Mi Homo"]="luci-app-mihomo"
+    ["FC Homo"]="luci-app-fchomo"
+    ["Home Proxy"]="luci-app-homeproxy"
     ["Store"]="luci-app-store"
     ["SQM"]="luci-app-sqm"
     ["EQoS"]="luci-app-eqos"
@@ -104,11 +105,14 @@ for plugin in "${selected_plugins[@]}"; do
         "Passwall2")
             echo "Passwall2 Version: ${passwall2}" >> release.txt
             ;;
-        "MiHomo")
+        "Mi Homo")
             echo "MiHomo Version: ${mihomo}" >> release.txt
             ;;
         "OpenClash")
             echo "OpenClash Version: ${openclash}" >> release.txt
+            ;;
+        "FullCombo Homo")
+            echo "FullCombo Homo Version: ${fchomo}" >> release.txt
             ;;
         "Store")
             echo "Store Version: ${store}" >> release.txt
