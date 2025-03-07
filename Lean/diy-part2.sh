@@ -82,13 +82,13 @@ cp -f ${GITHUB_WORKSPACE}/patches/udpxy/Makefile feeds/packages/net/udpxy/
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
-rm -rf feeds/packages/lang/golang
 
 # 插件切换到指定版本
 echo "开始执行切换插件到指定版本"
 
-# Golang 1.23.4
-git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
+# Golang 1.2x
+rm -rf feeds/packages/lang/golang
+git clone --depth=1 https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
 echo "Golang 插件切换完成"
 
 # IPSet(Lean源码已跟进)
